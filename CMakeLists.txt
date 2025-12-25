@@ -9,10 +9,6 @@ add_executable(bulk src/main.cpp)
 
 option(WITH_BOOST_TEST "Whether to build Boost test" ON)
 
-add_subdirectory(src/libs)
-
-target_link_libraries(${PROJECT_NAME} blockcontroller consolelogger filelogger)
-
 configure_file(version.h.in version.h)
 
 if (MSVC)
@@ -54,3 +50,8 @@ if(WITH_BOOST_TEST)
     enable_testing()
     add_test(bulk test_version)
 endif()
+
+
+add_subdirectory(src/libs)
+
+target_link_libraries(${PROJECT_NAME} blockcontroller consolelogger filelogger)
