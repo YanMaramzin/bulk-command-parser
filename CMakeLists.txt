@@ -9,6 +9,10 @@ add_executable(bulk src/main.cpp)
 
 option(WITH_BOOST_TEST "Whether to build Boost test" ON)
 
+add_subdirectory(src/libs)
+
+target_link_libraries(${PROJECT_NAME} blockcontroller consolelogger filelogger)
+
 configure_file(version.h.in version.h)
 
 if (MSVC)
@@ -45,10 +49,6 @@ set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
 set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CPACK_PACKAGE_CONTACT example@example.com)
 include(CPack)
-
-add_subdirectory(src/libs)
-
-target_link_libraries(${PROJECT_NAME} blockcontroller consolelogger filelogger)
 
 if(WITH_BOOST_TEST)
     enable_testing()
