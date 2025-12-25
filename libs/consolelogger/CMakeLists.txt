@@ -1,12 +1,12 @@
-project(filelogger)
+project(consolelogger)
 
 add_library(${PROJECT_NAME}
-        filelogger.h
-        filelogger.cpp
+        consolelogger.h
+        consolelogger.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        .
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC iobserver)

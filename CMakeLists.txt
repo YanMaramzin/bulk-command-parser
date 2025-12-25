@@ -5,7 +5,7 @@ project(bulk VERSION ${PROJECT_VESRION})
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(bulk src/main.cpp)
+add_executable(bulk main.cpp)
 
 option(WITH_BOOST_TEST "Whether to build Boost test" ON)
 
@@ -46,7 +46,7 @@ set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CPACK_PACKAGE_CONTACT example@example.com)
 include(CPack)
 
-add_subdirectory(src/libs)
+add_subdirectory(libs)
 
 target_link_libraries(${PROJECT_NAME} blockcontroller consolelogger filelogger)
 
