@@ -28,6 +28,11 @@ jobs:
           release_name: Release ${{ github.run_number }}
           draft: false
           prerelease: false
+      - name: Debug - Check file
+        run: |
+          pwd
+          find . -name "*.deb" 2>/dev/null || echo "No .deb files found"
+          ls -la
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
