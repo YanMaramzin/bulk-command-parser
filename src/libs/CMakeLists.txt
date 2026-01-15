@@ -1,5 +1,0 @@
-add_subdirectory(defs)
-add_subdirectory(observer)
-add_subdirectory(filelogger)
-add_subdirectory(consolelogger)
-add_subdirectory(blockcontroller)

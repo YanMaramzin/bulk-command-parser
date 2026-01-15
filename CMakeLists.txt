@@ -1,57 +1,81 @@
-cmake_minimum_required(VERSION 3.31)
-set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
-set(PROJECT_VESRION 0.0.${PATCH_VERSION})
-project(bulk VERSION ${PROJECT_VESRION})
+cmake_minimum_required(VERSION 3.16)
 
-set(CMAKE_CXX_STANDARD 20)
+project(async
+        VERSION 1.0.0
+        LANGUAGES CXX
+)
 
-add_executable(bulk src/main.cpp)
+# ------------------------
+# Общие настройки
+# ------------------------
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)  # важно для shared
 
-option(WITH_BOOST_TEST "Whether to build Boost test" ON)
+include(GNUInstallDirs)
 
-configure_file(version.h.in version.h)
+# ------------------------
+# Библиотека async
+# ------------------------
+add_library(async SHARED
+        libs/async/src/async.cpp
+        libs/blockcontroller/src/blockcontroller.cpp
+        libs/consolelogger/src/consoleworker.cpp
+        libs/filelogger/src/fileworker.cpp
+        libs/filelogger/src/filelogger.cpp
+        libs/dispatcher/src/dispatcher.cpp
+)
 
-if (MSVC)
-    target_compile_options(bulk PRIVATE
-            /W4
-    )
-    target_compile_options(bulk PRIVATE
-            /W4
-    )
-    if(WITH_BOOST_TEST)
-        target_compile_options(bulk PRIVATE
-                /W4
-        )
-    endif()
-else ()
-    target_compile_options(bulk PRIVATE
-            -Wall -Wextra -pedantic -Werror
-    )
-    target_compile_options(bulk PRIVATE
-            -Wall -Wextra -pedantic -Werror
-    )
-    if(WITH_BOOST_TEST)
-        target_compile_options(bulk PRIVATE
-                -Wall -Wextra -pedantic -Werror
-        )
-    endif()
-endif()
+target_include_directories(async
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libs/async/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libs/blockcontroller/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libs/consolelogger/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libs/filelogger/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libs/dispatcher/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libs/common/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libs/defs/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/libs/sinks/include>
+)
 
-install(TARGETS bulk RUNTIME DESTINATION bin)
+target_link_libraries(async
+        PRIVATE pthread
+)
 
-set(CPACK_GENERATOR DEB)
-set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
-set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
-set(CPACK_PACKAGE_CONTACT example@example.com)
-include(CPack)
+set_target_properties(async PROPERTIES
+        OUTPUT_NAME async
+        VERSION ${PROJECT_VERSION}
+        SOVERSION 1
+)
 
-if(WITH_BOOST_TEST)
-    enable_testing()
-    add_test(bulk test_version)
-endif()
+# ------------------------
+# Исполняемый файл (демо)
+# ------------------------
+add_executable(async_cli
+        main.cpp
+)
 
+target_link_libraries(async_cli
+        PRIVATE async
+)
 
-add_subdirectory(src/libs)
+# ------------------------
+# Установка
+# ------------------------
+install(TARGETS async async_cli
+        EXPORT asyncTargets
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 
-target_link_libraries(${PROJECT_NAME} blockcontroller consolelogger filelogger)
+install(DIRECTORY libs/async/include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(EXPORT asyncTargets
+        FILE asyncTargets.cmake
+        NAMESPACE async::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/async
+)
