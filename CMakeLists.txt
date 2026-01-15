@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.28)
 
 project(async
         VERSION 1.0.0
@@ -79,3 +79,20 @@ install(EXPORT asyncTargets
         NAMESPACE async::
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/async
 )
+
+# ------------------------
+# bulk_server
+# ------------------------
+find_package(Boost REQUIRED COMPONENTS system)
+
+add_executable(bulk_server
+        bulk_server/src/main.cpp
+        bulk_server/src/server.cpp
+        bulk_server/src/session.cpp
+)
+target_include_directories(bulk_server PRIVATE
+        bulk_server/include
+        include
+        ${CMAKE_CURRENT_SOURCE_DIR}/libs/async/include
+)
+target_link_libraries(bulk_server PRIVATE async ${Boost_LIBRARIES} pthread)
